@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../../plugins/elementui/index.css">
+    <style>
+        [v-cloak]{
+            display: none;
+        }
+    </style>
+
+</head>
+<body>
+<div id="app" v-cloak v-loading="loading" v-if="showWindow">
+
+
+
+
+
+
+    <el-form ref="form" :model="formData" label-width="150px" style="padding: 34px 24px;" size="small"
+             label-position="left">
+        <el-form-item label="上传数据文件">
+
+            <el-upload
+                    style="margin:20px 0 10px 0 "
+                    drag
+                    action="http://localhost:8444/api/tool/file/uploadFile"
+                    :on-success="onUploadSuccess"
+                    :before-upload="beforeUpload"
+                    :default-file-list="defaultFileList"
+                    multiple>
+                <i class="el-icon-upload"></i>
+                <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+            </el-upload>
+        </el-form-item>
+
+        <el-form-item>
+            <el-button size="small" type="warning" @click="recover">恢复数据</el-button>
+        </el-form-item>
+    </el-form>
+
+
+</div>
+</body>
+<script src="../../../plugins/vue/vue.js"></script>
+<script src="../../../plugins/jquery/jquery-3.3.1.min.js"></script>
+<script src="../../../plugins/elementui/index.js"></script>
+<script src="../../../js/utils.js"></script>
+<script src="../../../js/management/excel/Recover.js"></script>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>非涉密中间机</title>
+    <link rel="stylesheet" href="../../css/template.css">
+    <script src="../../js/template.js"></script>
+    <link rel="stylesheet" href="../../css/computer/nonConfidentialIntermediary.css">
+</head>
+<body>
+<div id="app" v-cloak style="background: white;height: 100%;overflow: hidden;" v-if="showWindow">
+    <el-collapse v-model="activeNames">
+        <el-collapse-item name="search">
+            <template slot="title">
+                条件筛选&nbsp; <i class="header-icon el-icon-search"></i>
+            </template>
+            <el-form :model="filters">
+                <el-form-item>
+                    <div class="my-flex-div">
+                        <p class="my-title">类型</p>
+                        <el-radio-group v-model="filters.condition.type" size="mini">
+                            <el-radio-button v-for="item in filters.selectionList.type"
+                                             :label="item.value">{{item.label}}
+                            </el-radio-button>
+                        </el-radio-group>
+                    </div>
+                </el-form-item>
+
+                <div class="my-flex-div">
+                    <p class="my-title">操作系统版本</p>
+                    <el-radio-group v-model="filters.condition.os_version" size="mini">
+                        <el-radio-button v-for="item in filters.selectionList.os_version"
+                                         :label="item.value">{{item.label}}
+                        </el-radio-button>
+                    </el-radio-group>
+                </div>
+                </el-form-item>
+
+                <el-form-item>
+                    <div class="my-flex-div">
+                        <p class="my-title">光驱</p>
+                        <el-radio-group v-model="filters.condition.cd_drive" size="mini">
+                            <el-radio-button v-for="item in filters.selectionList.cd_drive"
+                                             :label="item.value">{{item.label}}
+                            </el-radio-button>
+                        </el-radio-group>
+                    </div>
+                </el-form-item>
+
+
+            </el-form>
+
+            <div>
+                <div class="my-flex-div" style="padding-top: 6px;">
+                    <p class="my-title">单位</p>
+                    <div>
+                        <el-select v-model="filters.condition.subject" placeholder="请选择单位"
+                                   :loading="loading" clearable size="small">
+                            <el-option
+                                    v-for="item in filters.selectionList.subject"
+                                    :key="item.id"
+                                    :label="item.dept_name"
+                                    :value="item.id"></el-option>
+                        </el-select>
+                    </div>
+                </div>
+                <div class="my-flex-div" style="padding-top: 6px;">
+                    <p class="my-title">启用时间</p>
+                    <div>
+                        <el-date-picker v-model="filters.condition.startTime"
+                                        placeholder="起始时间"
+                                        value-format="yyyy-MM-dd"
+                                        format="yyyy-MM-dd"></el-date-picker>
+                        <el-date-picker v-model="filters.condition.endTime"
+                                        placeholder="终止时间"
+                                        value-format="yyyy-MM-dd"
+                                        format="yyyy-MM-dd"></el-date-picker>
+                    </div>
+                </div>
+
+
+
+                <div style="margin-top: 6vh">
+                    <el-button type="primary" size="mini" @click="getList()">查找</el-button>
+                    <span style="margin-left: 10px">
+                        <el-button size="mini" @click="activeNames=[];">收起</el-button>
+                    </span>
+                </div>
+            </div>
+        </el-collapse-item>
+    </el-collapse>
+
+    <!--操作栏-->
+    <div style="padding: 15px 20px 0 15px;">
+        <span>
+        <el-button size="small" type="primary" @click="exportData.visible=true" style="margin-left: 10px;">
+            导出到Excel</el-button>
+        </span>
+
+    </div>
+
+    <!--表格-->
+    <el-table :data="table.data" height="calc(100vh - 190px)" v-loading="table.loading"
+              style="width: 100%;overflow-y: hidden;margin-top: 15px;" class="scroll-bar"
+              @selection-change="onSelectionChange" stripe
+              width="100%">
+        <el-table-column type="selection" width="50" fixed></el-table-column>
+
+        <el-table-column label="单位" width="180" align="center" header-align="center">
+            <template slot-scope="scope">
+                {{scope.row.department_code + ' ' + scope.row.department_name}}
+            </template>
+        </el-table-column>
+        <el-table-column label="科室/课题组" width="250" align="center" header-align="center">
+            <template slot-scope="scope">
+                {{scope.row.subject_code + ' ' + scope.row.subject_name}}
+            </template>
+        </el-table-column>
+        <el-table-column label="类型" width="80" prop="_type" align="center" header-align="center"></el-table-column>
+        <el-table-column label="编号" width="150" prop="number" align="center"
+                         header-align="center"></el-table-column>
+        <el-table-column label="固定资产编号" width="150" prop="asset_number" align="center" header-align="center"></el-table-column>
+        <el-table-column label="责任人" width="100" prop="person" align="center" header-align="center"></el-table-column>
+        <el-table-column label="密级" width="80" prop="_secret_level" align="center"
+                         header-align="center"></el-table-column>
+        <el-table-column label="品牌型号" width="100" prop="model" align="center" header-align="center"></el-table-column>
+        <el-table-column label="操作系统版本" width="100" prop="_os_version" align="center" header-align="center"></el-table-column>
+        <el-table-column label="操作系统安装时间" width="200" prop="os_install_time" align="center" header-align="center"></el-table-column>
+
+        <el-table-column label="硬盘序列号" width="150" prop="serial_number" align="center"
+                         header-align="center"></el-table-column>
+        <el-table-column label="mac地址" width="100" prop="mac_address" align="center" header-align="center"></el-table-column>
+        <el-table-column label="光驱" width="100" prop="_cd_drive" align="center" header-align="center"></el-table-column>
+        <el-table-column label="用途" width="130" prop="_usage" align="center" header-align="center"></el-table-column>
+        <el-table-column label="放置地点" width="200" prop="place_location" align="center"
+                         header-align="center"></el-table-column>
+        <el-table-column label="启用时间" width="100" prop="enablation_time" align="center"
+                         header-align="center"></el-table-column>
+        <el-table-column label="使用情况" width="100" prop="_use_situation" align="center"
+                         header-align="center"></el-table-column>
+        <el-table-column label="备注" width="250" prop="remarks" align="center" header-align="center"></el-table-column>
+    </el-table>
+
+    <!--底栏-->
+    <el-pagination style="text-align: center;margin: 8px auto;"
+                   @size-change="onPageSizeChange"
+                   @current-change="onPageIndexChange"
+                   :current-page="table.props.pageIndex"
+                   :page-sizes="table.props.pageSizes"
+                   :page-size="table.props.pageSize"
+                   :total="table.props.total"
+                   layout="total, sizes, prev, pager, next, jumper">
+    </el-pagination>
+
+    <el-dialog title="请选择导出列" :visible.sync="exportData.visible">
+        <iframe :src="exportData.src" frameborder="0" width="600px" height="400px"></iframe>
+    </el-dialog>
+
+</div>
+</body>
+<script src="../../js/computer/nonConfidentialIntermediary.js"></script>
+</html>

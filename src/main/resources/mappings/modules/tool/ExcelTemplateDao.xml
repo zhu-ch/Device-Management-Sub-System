@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.management.admin.modules.tool.dao.ExcelTemplateDao">
+
+    <resultMap id="excelTemplateBean" type="com.management.admin.modules.tool.entity.ExcelTemplate">
+        <id column="id" property="id"/>
+        <result column="template_name" property="templateName"/>
+        <result column="excel_name" property="filePath"/>
+        <result column="table_name" property="tableName"/>
+        <result column="create_date" property="createDate"/>
+        <result column="modify_date" property="modifyDate"/>
+        <result column="type_id" property="typeId"/>
+        <result column="type_name" property="typeName"/>
+        <result column="del_flag" property="delFlag"/>
+    </resultMap>
+
+    <select id="getTableList" resultType="String">
+        select `table_name` from information_schema.tables where table_schema="securityManager"
+    </select>
+
+    <select id="getTableColumnList" resultType="String">
+        select COLUMN_NAME from information_schema.COLUMNS where table_name = #{param1} and table_schema = 'securityManager'
+    </select>
+
+    <insert id="insertOrUpdate" parameterType="com.management.admin.modules.tool.entity.ExcelTemplate">
+        insert excel_template (id,
+                               template_name,
+                               type_id,
+                               table_name,
+                               excel_name,
+                               create_time,
+                               modify_time,
+                               del_flag)
+        values (#{id},
+                #{templateName},
+                #{typeId},
+                #{tableName},
+                #{filePath},
+                #{createTime},
+                #{modifyTime},
+                #{delFlag})
+        on duplicate key update id             = #{id},
+                                template_name  = #{templateName},
+                                table_name     = #{tableName},
+                                excel_name     = #{filePath},
+                                create_time    = #{createTime},
+                                modify_time    = #{modifyTime},
+                                del_flag       = #{delFlag}
+    </insert>
+
+
+
+    <select id="selectAllTemplate" parameterType="com.management.admin.modules.tool.entity.ExcelTemplate" resultMap="excelTemplateBean">
+        select a.*,b.type_name from excel_template a left join data_dictionary_type b on a.type_id=b.id where a.del_flag=0
+    </select>
+
+
+    <select id="selectById" parameterType="string" resultMap="excelTemplateBean">
+     select a.*,b.type_name from excel_template a left join data_dictionary_type b on a.type_id=b.id where a.id=#{param1} and a.del_flag=0
+    </select>
+
+
+    <select id="selectFieldListByTableName" parameterType="string" resultType="com.management.admin.modules.tool.entity.tiny.TableField">
+        select COLUMN_NAME    as fieldName,
+               DATA_TYPE      as fieldType
+        from INFORMATION_SCHEMA.Columns
+        where TABLE_SCHEMA = (select database()) and table_name = #{tableName}
+    </select>
+
+    <select id="getTypeList" resultType="com.management.admin.modules.tool.entity.tiny.TemplateType">
+      select id,type_name as "typeName",`table_name`as "tableName" from data_dictionary_type where del_flag=0
+    </select>
+
+</mapper>
