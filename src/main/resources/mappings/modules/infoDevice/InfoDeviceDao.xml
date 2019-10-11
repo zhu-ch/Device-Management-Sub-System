@@ -8,11 +8,11 @@
     </select>
 
     <select id="getSubFromDept" resultType="com.management.admin.modules.sys.entity.Dept">
-        SELECT `id`, `dept_name` FROM `department` WHERE (`dept_type` = 0 AND `del_flag` = 0)
+        SELECT `id`, `dept_name` FROM `department` WHERE (`dept_type` = 0 AND `del_flag` = 0) order by sort
     </select>
 
     <select id="getDeptSub" resultType="com.management.admin.modules.sys.entity.Dept">
-        SELECT `id`, `dept_name` FROM `department` WHERE (`dept_attach` = #{_parameter} AND `del_flag` = 0)
+        SELECT `id`, `dept_name` FROM `department` WHERE (`dept_attach` = #{_parameter} AND `del_flag` = 0) order by sort
     </select>
 
     <select id="findLabel" resultType="String">
@@ -239,7 +239,7 @@
     </select>
 
     <update id="deleteListByIds" parameterType="com.management.admin.modules.infoDevice.entity.InfoDevice">
-        UPDATE `confidential_information_device` SET `del_flag` = 1 WHERE `id` IN
+        UPDATE `confidential_information_device` SET `del_flag` = 1,`secret_number`=`id` WHERE `id` IN
         <foreach collection="list" item="item" open="(" close=")" separator=",">
             #{item.id}
         </foreach>
