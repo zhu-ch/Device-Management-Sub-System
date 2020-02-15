@@ -7,14 +7,27 @@ let defaultFiltersCondition = {
     subject: '',
     startTime: '',
     endTime: '',
-    cd_drive:'',
-    os_version:''
+    cd_drive: '',
+    os_version: ''
+};
+
+let prevFilter = {
+    use_situation: '',
+    usage: 'f7049b67d63943c989feb4ce6d6dc715',
+    secret_level: '3f71dddf6a054944a9a91f60faed3989',
+    type: '',
+    school: '',
+    subject: '',
+    startTime: '',
+    endTime: '',
+    cd_drive: '',
+    os_version: ''
 };
 
 let app = new Vue({
     el: '#app',
     data: {
-        showWindow:false,
+        showWindow: false,
         loading: false,
         urls: {
             getSub: 'http://localhost:8444/api/computer/noneConfidential/getSub',
@@ -29,8 +42,8 @@ let app = new Vue({
                 secret_level: [],
                 type: [],
                 subject: [],
-                os_version:[],
-                cd_drive:[]
+                os_version: [],
+                cd_drive: []
             },
             condition: defaultFiltersCondition
         },
@@ -46,9 +59,9 @@ let app = new Vue({
                 total: 0
             }
         },
-        exportData:{
-            visible:false,
-            src:"../management/excel/ExportData.html"
+        exportData: {
+            visible: false,
+            src: "../management/excel/ExportData.html"
         }
 
     },
@@ -60,7 +73,7 @@ let app = new Vue({
         checkStatus() {
             if (getCookie("name") != null) {
                 this.showWindow = true;
-                defaultFiltersCondition.school=getCookie("name");
+                defaultFiltersCondition.school = getCookie("name");
                 return;
             }
             this.$message({
@@ -102,9 +115,12 @@ let app = new Vue({
                 });
             })
         },
-        refreshTable: function () {
+        refreshTable: function (usingPrevFilter) {
             let app = this;
             app.table.loading = true;
+            if (usingPrevFilter) {
+                Object.assign(this.filters.condition, prevFilter);
+            }
             let data = {
                 page: app.table.props,
                 type: this.filters.condition.type,
@@ -115,109 +131,110 @@ let app = new Vue({
                 subject_code: this.filters.condition.subject,
                 startTime: this.filters.condition.startTime,
                 endTime: this.filters.condition.endTime,
-                os_version:this.filters.condition.os_version,
-                cd_drive:this.filters.condition.cd_drive,
-                searchKey:this.filters.condition.searchKey,
-                ip_address:this.filters.condition.ip_address
+                os_version: this.filters.condition.os_version,
+                cd_drive: this.filters.condition.cd_drive,
+                searchKey: this.filters.condition.searchKey,
+                ip_address: this.filters.condition.ip_address
             };
             ajaxPostJSON(this.urls.getList, data, function (result) {
                 app.table.loading = false;
                 app.table.data = result.data.resultList;
                 app.table.props.total = result.data.total;
+                Object.assign(prevFilter, app.filters.condition);
             })
         },
         getList: function () {
             app.table.props.pageIndex = 1;
-            this.refreshTable();
+            this.refreshTable(false);
         },
         onSelectionChange: function (val) {
             this.table.selectionList = val;
         },
         onPageSizeChange: function (newSize) {
             this.table.props.pageSize = newSize;
-            this.refreshTable();
+            this.refreshTable(true);
         },
         onPageIndexChange: function (newIndex) {
             this.table.props.pageIndex = newIndex;
-            this.refreshTable();
+            this.refreshTable(true);
         }
     },
     mounted: function () {
         this.getSub();
-        this.refreshTable();
+        this.refreshTable(false);
     }
 });
 
 function getExportConditions() {
-    let ID=[];
+    let ID = [];
     app.table.selectionList.forEach(function (v) {
         ID.push(v["id"]);
     });
 
-    let data={
-        fileName:"非涉密计算机",
-        templateId:"3364a351d7c941418b0946219397f7e4",
-        fieldList:[
+    let data = {
+        fileName: "非涉密计算机",
+        templateId: "3364a351d7c941418b0946219397f7e4",
+        fieldList: [
             {
-                fieldName:"单位",
-                fieldType:"department"
-            },{
-                fieldName:"科室/课题组",
-                fieldType:"subject"
-            },{
-                fieldName:"类型",
-                fieldType:"type",
-            },{
-                fieldName:"编号",
-                fieldType:"number"
-            },{
-                fieldName:"固定资产编号",
-                fieldType:"asset_number"
-            },{
-                fieldName:"负责人",
-                fieldType:"person"
-            },{
-                fieldName:"密级",
-                fieldType:"secret_level"
-            },{
-                fieldName:"品牌型号",
-                fieldType:"model"
-            },{
-                fieldName:"操作系统版本",
-                fieldType:"os_version"
-            },{
-                fieldName:"操作系统安装时间",
-                fieldType:"os_install_time"
-            },{
-                fieldName:"硬盘序列号",
-                fieldType:"serial_number"
-            },{
-                fieldName:"mac地址",
-                fieldType:"mac_address"
-            },{
-                fieldName:"光驱",
-                fieldType:"cd_drive"
-            },{
-                fieldName:"用途",
-                fieldType:"usage"
-            },{
-                fieldName:"放置地点",
-                fieldType:"place_location"
-            },{
-                fieldName:"启用时间",
-                fieldType:"enablation_time"
-            },{
-                fieldName:"使用情况",
-                fieldType:"use_situation"
-            },{
-                fieldName:"备注",
-                fieldType:"remarks"
+                fieldName: "单位",
+                fieldType: "department"
+            }, {
+                fieldName: "科室/课题组",
+                fieldType: "subject"
+            }, {
+                fieldName: "类型",
+                fieldType: "type",
+            }, {
+                fieldName: "编号",
+                fieldType: "number"
+            }, {
+                fieldName: "固定资产编号",
+                fieldType: "asset_number"
+            }, {
+                fieldName: "负责人",
+                fieldType: "person"
+            }, {
+                fieldName: "密级",
+                fieldType: "secret_level"
+            }, {
+                fieldName: "品牌型号",
+                fieldType: "model"
+            }, {
+                fieldName: "操作系统版本",
+                fieldType: "os_version"
+            }, {
+                fieldName: "操作系统安装时间",
+                fieldType: "os_install_time"
+            }, {
+                fieldName: "硬盘序列号",
+                fieldType: "serial_number"
+            }, {
+                fieldName: "mac地址",
+                fieldType: "mac_address"
+            }, {
+                fieldName: "光驱",
+                fieldType: "cd_drive"
+            }, {
+                fieldName: "用途",
+                fieldType: "usage"
+            }, {
+                fieldName: "放置地点",
+                fieldType: "place_location"
+            }, {
+                fieldName: "启用时间",
+                fieldType: "enablation_time"
+            }, {
+                fieldName: "使用情况",
+                fieldType: "use_situation"
+            }, {
+                fieldName: "备注",
+                fieldType: "remarks"
             }
         ],
-        conditionsList:[],
-        idList:ID,
-        isScrapped:false,
-        tableName:"non_confidential_computer"
+        conditionsList: [],
+        idList: ID,
+        isScrapped: false,
+        tableName: "non_confidential_computer"
     }
     return data;
 }

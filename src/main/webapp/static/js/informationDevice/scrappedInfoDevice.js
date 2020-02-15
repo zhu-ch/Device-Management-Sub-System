@@ -10,6 +10,18 @@ let defaultFiltersCondition = {
     endTime: ''
 };
 
+let prevFilter = {
+    use_situation: '',
+    usage: '',
+    secret_level: '',
+    type: '',
+    device_name: '',
+    school: '',
+    subject: '',
+    startTime: '',
+    endTime: ''
+};
+
 let app = new Vue({
     el: '#app',
     data: {
@@ -111,9 +123,12 @@ let app = new Vue({
                 });
             })
         },
-        refreshTable: function () {
+        refreshTable: function (usingPrevFilter) {
             let app = this;
             app.table.loading = true;
+            if (usingPrevFilter) {
+                Object.assign(this.filters.condition, prevFilter);
+            }
             let data = {
                 page: app.table.props,
                 device_name: this.filters.condition.device_name,
@@ -130,27 +145,28 @@ let app = new Vue({
                 app.table.loading = false;
                 app.table.data = result.data.resultList;
                 app.table.props.total = result.data.total;
+                Object.assign(prevFilter, app.filters.condition);
             })
         },
         getList: function (index) {
             app.table.props.pageIndex = 1;
-            this.refreshTable();
+            this.refreshTable(openDatabase());
         },
         onSelectionChange: function (val) {
             this.table.selectionList = val;
         },
         onPageSizeChange: function (newSize) {
             this.table.props.pageSize = newSize;
-            this.refreshTable();
+            this.refreshTable(true);
         },
         onPageIndexChange: function (newIndex) {
             this.table.props.pageIndex = newIndex;
-            this.refreshTable();
+            this.refreshTable(true);
         }
     },
     mounted: function () {
         this.getSub();
-        this.refreshTable();
+        this.refreshTable(false);
     }
 });
 
